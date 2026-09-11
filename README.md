@@ -9,6 +9,8 @@ The app has two independent engines:
 
 No account, server, external vision API, or API key is required. Current positions, settings, and optional correction samples stay in browser storage. A small service worker caches the solver, dictionary, and recognition templates after the first successful visit so the installed site can be used offline.
 
+The deployed app includes a [methodology page](https://jasonshaw0.github.io/crossplay-solver/methodology/) that explains the trie search, anchor generation, cross-check masks, independent validation, exact scoring, and brute-force correctness oracle.
+
 ## Use it locally
 
 Node.js 24 is used in development.

@@ -1,4 +1,4 @@
-const CACHE = 'crossplay-solver-v3';
+const CACHE = 'crossplay-solver-v4';
 
 function detachCachedResponse(response) {
   return new Response(response.body, {
