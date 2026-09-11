@@ -1,4 +1,4 @@
-const CACHE = 'crossplay-solver-v2';
+const CACHE = 'crossplay-solver-v3';
 
 function detachCachedResponse(response) {
   return new Response(response.body, {
@@ -36,6 +36,15 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET' || new URL(event.request.url).origin !== location.origin) return;
   event.respondWith((async () => {
+    if (event.request.mode === 'navigate') {
+      try {
+        const response = await fetch(event.request);
+        if (response.ok) await (await caches.open(CACHE)).put(self.registration.scope, response.clone());
+        return response;
+      } catch {
+        return (await caches.match(self.registration.scope)) ?? Response.error();
+      }
+    }
     const cached = await caches.match(event.request);
     // Next's worker bootstrap stores module parameters in the URL fragment.
     // Cache responses retain their own fragment-free URL, so return a detached

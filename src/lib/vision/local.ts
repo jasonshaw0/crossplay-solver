@@ -25,7 +25,9 @@ export function recognizePixels(image:PixelImage,templates:TemplateSet):Recognit
   for(const tile of tiles) {
     const match=classify(tile.glyph,templates.letters),point=classify(tile.pointGlyph,templates.digits);
     tile.letter=match.letter||'I';tile.confidence=match.confidence;
-    tile.isBlank=point.letter==='0'&&point.score>.65;tile.blankConfidence=point.confidence;
+    // Require both a strong zero match and separation from the next digit.
+    // A false blank changes scoring and can make narrow letters look slash-like.
+    tile.isBlank=point.letter==='0'&&point.score>=.7&&point.gap>=.04;tile.blankConfidence=point.confidence;
     if(!tile.pointGlyph.length||point.confidence<.8)tile.confidence=Math.min(tile.confidence,.78);
   }
   for(const tile of rack) {

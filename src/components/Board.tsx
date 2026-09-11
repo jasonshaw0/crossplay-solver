@@ -10,7 +10,7 @@ interface Props {
 export function Board({board,selected,direction,preview,uncertain,problemCells,onSelect,onChange,onDirection}:Props) {
   const refs=useRef<(HTMLInputElement|null)[]>([]);
   const repeatedClick=useRef(false);
-  useEffect(()=>{refs.current[112]?.focus({preventScroll:true});},[]);
+  useEffect(()=>{if(window.matchMedia('(pointer:fine)').matches)refs.current[112]?.focus({preventScroll:true});},[]);
   function move(cell:Cell,dr:number,dc:number) {
     const next={row:Math.max(0,Math.min(14,cell.row+dr)),col:Math.max(0,Math.min(14,cell.col+dc))};
     onSelect(next,false);refs.current[next.row*15+next.col]?.focus({preventScroll:true});
@@ -24,7 +24,7 @@ export function Board({board,selected,direction,preview,uncertain,problemCells,o
         const cell={row,col},key=cellKey(cell),premium=config.premiums[row][col],proposed=previewTiles.get(key),shown=proposed??tile;
         const active=selected.row===row&&selected.col===col;
         return <div key={key} className={['square',premium??'',shown?'occupied':'',shown?.isBlank?'blank-tile':'',proposed?'preview-tile':'',active?'selected':'',uncertain[key]?'uncertain':'',problemCells.has(key)?'problem':''].filter(Boolean).join(' ')} data-testid={`cell-${row+1}-${col+1}`} data-letter={tile?.letter??''} data-blank={tile?.isBlank??false} data-preview={proposed?.letter??''}>
-          <span className="tile-face" aria-hidden="true">{shown?<><b>{shown.isBlank?shown.letter.toLowerCase():shown.letter}</b><small>{shown.isBlank?'○':config.tileValues[shown.letter]}</small>{proposed&&<em>+</em>}</>:<span className="premium-label">{premium?.replace('D','2').replace('T','3')??(row===7&&col===7?'✦':'')}</span>}</span>
+          <span className="tile-face" aria-hidden="true">{shown?<><b>{shown.letter}</b><small>{shown.isBlank?'0':config.tileValues[shown.letter]}</small>{proposed&&<em>+</em>}</>:<span className="premium-label">{premium?.replace('D','2').replace('T','3')??(row===7&&col===7?'✦':'')}</span>}</span>
           {uncertain[key]&&<span className="uncertainty-mark" aria-hidden="true">!</span>}
           <input ref={node=>{refs.current[row*15+col]=node;}} aria-label={`Row ${row+1}, column ${col+1}${tile?`, ${tile.letter}${tile.isBlank?', blank':''}`:', empty'}${uncertain[key]?', review reading':''}`} autoComplete="off" autoCapitalize="characters" spellCheck={false} value={tile?.letter??''} maxLength={1} tabIndex={active?0:-1}
             onPointerDown={()=>{repeatedClick.current=active;}} onClick={()=>onSelect(cell,repeatedClick.current)} onFocus={()=>onSelect(cell,false)}
