@@ -1,0 +1,247 @@
+{
+  "source": "IMG_2850.png",
+  "verifiedBy": "Manual visual transcription, 2026-09-10",
+  "board": [
+    {
+      "row": 7,
+      "col": 7,
+      "letter": "F",
+      "isBlank": false
+    },
+    {
+      "row": 8,
+      "col": 6,
+      "letter": "R",
+      "isBlank": false
+    },
+    {
+      "row": 8,
+      "col": 7,
+      "letter": "E",
+      "isBlank": false
+    },
+    {
+      "row": 8,
+      "col": 8,
+      "letter": "L",
+      "isBlank": false
+    },
+    {
+      "row": 8,
+      "col": 9,
+      "letter": "A",
+      "isBlank": false
+    },
+    {
+      "row": 8,
+      "col": 10,
+      "letter": "X",
+      "isBlank": false
+    },
+    {
+      "row": 8,
+      "col": 11,
+      "letter": "E",
+      "isBlank": false
+    },
+    {
+      "row": 8,
+      "col": 12,
+      "letter": "D",
+      "isBlank": false
+    },
+    {
+      "row": 9,
+      "col": 7,
+      "letter": "Z",
+      "isBlank": false
+    },
+    {
+      "row": 9,
+      "col": 8,
+      "letter": "A",
+      "isBlank": false
+    },
+    {
+      "row": 10,
+      "col": 8,
+      "letter": "V",
+      "isBlank": false
+    },
+    {
+      "row": 10,
+      "col": 9,
+      "letter": "A",
+      "isBlank": false
+    },
+    {
+      "row": 10,
+      "col": 10,
+      "letter": "C",
+      "isBlank": false
+    },
+    {
+      "row": 10,
+      "col": 11,
+      "letter": "S",
+      "isBlank": false
+    },
+    {
+      "row": 11,
+      "col": 1,
+      "letter": "Y",
+      "isBlank": false
+    },
+    {
+      "row": 11,
+      "col": 8,
+      "letter": "A",
+      "isBlank": false
+    },
+    {
+      "row": 12,
+      "col": 1,
+      "letter": "O",
+      "isBlank": false
+    },
+    {
+      "row": 12,
+      "col": 4,
+      "letter": "N",
+      "isBlank": false
+    },
+    {
+      "row": 12,
+      "col": 5,
+      "letter": "O",
+      "isBlank": false
+    },
+    {
+      "row": 12,
+      "col": 6,
+      "letter": "T",
+      "isBlank": false
+    },
+    {
+      "row": 12,
+      "col": 7,
+      "letter": "E",
+      "isBlank": false
+    },
+    {
+      "row": 12,
+      "col": 8,
+      "letter": "S",
+      "isBlank": false
+    },
+    {
+      "row": 13,
+      "col": 1,
+      "letter": "W",
+      "isBlank": false
+    },
+    {
+      "row": 13,
+      "col": 2,
+      "letter": "O",
+      "isBlank": false
+    },
+    {
+      "row": 13,
+      "col": 3,
+      "letter": "V",
+      "isBlank": false
+    },
+    {
+      "row": 13,
+      "col": 4,
+      "letter": "E",
+      "isBlank": true
+    },
+    {
+      "row": 13,
+      "col": 5,
+      "letter": "N",
+      "isBlank": false
+    },
+    {
+      "row": 14,
+      "col": 4,
+      "letter": "R",
+      "isBlank": false
+    },
+    {
+      "row": 14,
+      "col": 5,
+      "letter": "E",
+      "isBlank": false
+    },
+    {
+      "row": 14,
+      "col": 6,
+      "letter": "A",
+      "isBlank": false
+    },
+    {
+      "row": 14,
+      "col": 7,
+      "letter": "C",
+      "isBlank": false
+    },
+    {
+      "row": 14,
+      "col": 8,
+      "letter": "T",
+      "isBlank": false
+    },
+    {
+      "row": 15,
+      "col": 1,
+      "letter": "G",
+      "isBlank": false
+    },
+    {
+      "row": 15,
+      "col": 2,
+      "letter": "O",
+      "isBlank": false
+    },
+    {
+      "row": 15,
+      "col": 3,
+      "letter": "L",
+      "isBlank": false
+    },
+    {
+      "row": 15,
+      "col": 4,
+      "letter": "D",
+      "isBlank": false
+    }
+  ],
+  "rack": [
+    {
+      "slot": 0,
+      "letter": "H",
+      "isBlank": false
+    },
+    {
+      "slot": 1,
+      "letter": "O",
+      "isBlank": false
+    },
+    {
+      "slot": 2,
+      "letter": "I",
+      "isBlank": false
+    },
+    {
+      "slot": 5,
+      "letter": "D",
+      "isBlank": false
+    }
+  ],
+  "playerScore": 105,
+  "opponentScore": 85,
+  "note": "Zoomed board clips columns 13–15. Visible YOW is a pending preview, not a committed move. Rack gaps are preserved."
+}

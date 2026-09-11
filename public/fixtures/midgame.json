@@ -1,0 +1,372 @@
+{
+  "version": 1,
+  "board": [
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      {
+        "letter": "F",
+        "isBlank": false
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      {
+        "letter": "R",
+        "isBlank": false
+      },
+      {
+        "letter": "E",
+        "isBlank": false
+      },
+      {
+        "letter": "L",
+        "isBlank": false
+      },
+      {
+        "letter": "A",
+        "isBlank": false
+      },
+      {
+        "letter": "X",
+        "isBlank": false
+      },
+      {
+        "letter": "E",
+        "isBlank": false
+      },
+      {
+        "letter": "D",
+        "isBlank": false
+      },
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      {
+        "letter": "Z",
+        "isBlank": false
+      },
+      {
+        "letter": "A",
+        "isBlank": false
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      {
+        "letter": "V",
+        "isBlank": false
+      },
+      {
+        "letter": "A",
+        "isBlank": false
+      },
+      {
+        "letter": "C",
+        "isBlank": false
+      },
+      {
+        "letter": "S",
+        "isBlank": false
+      },
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      {
+        "letter": "A",
+        "isBlank": false
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      {
+        "letter": "N",
+        "isBlank": false
+      },
+      {
+        "letter": "O",
+        "isBlank": false
+      },
+      {
+        "letter": "T",
+        "isBlank": false
+      },
+      {
+        "letter": "E",
+        "isBlank": false
+      },
+      {
+        "letter": "S",
+        "isBlank": false
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      {
+        "letter": "O",
+        "isBlank": false
+      },
+      {
+        "letter": "V",
+        "isBlank": false
+      },
+      {
+        "letter": "E",
+        "isBlank": true
+      },
+      {
+        "letter": "N",
+        "isBlank": false
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      {
+        "letter": "R",
+        "isBlank": false
+      },
+      {
+        "letter": "E",
+        "isBlank": false
+      },
+      {
+        "letter": "A",
+        "isBlank": false
+      },
+      {
+        "letter": "C",
+        "isBlank": false
+      },
+      {
+        "letter": "T",
+        "isBlank": false
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      {
+        "letter": "G",
+        "isBlank": false
+      },
+      {
+        "letter": "O",
+        "isBlank": false
+      },
+      {
+        "letter": "L",
+        "isBlank": false
+      },
+      {
+        "letter": "D",
+        "isBlank": false
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  ],
+  "rack": [
+    "H",
+    "O",
+    "I",
+    "Y",
+    "D",
+    "O",
+    "W"
+  ],
+  "scores": {
+    "player": 105,
+    "opponent": 85
+  }
+}

@@ -1,0 +1,202 @@
+{
+  "source": "IMG_2842.png",
+  "verifiedBy": "Manual visual transcription, 2026-09-10",
+  "board": [
+    {
+      "row": 7,
+      "col": 7,
+      "letter": "F",
+      "isBlank": false
+    },
+    {
+      "row": 8,
+      "col": 6,
+      "letter": "R",
+      "isBlank": false
+    },
+    {
+      "row": 8,
+      "col": 7,
+      "letter": "E",
+      "isBlank": false
+    },
+    {
+      "row": 8,
+      "col": 8,
+      "letter": "L",
+      "isBlank": false
+    },
+    {
+      "row": 8,
+      "col": 9,
+      "letter": "A",
+      "isBlank": false
+    },
+    {
+      "row": 8,
+      "col": 10,
+      "letter": "X",
+      "isBlank": false
+    },
+    {
+      "row": 8,
+      "col": 11,
+      "letter": "E",
+      "isBlank": false
+    },
+    {
+      "row": 8,
+      "col": 12,
+      "letter": "D",
+      "isBlank": false
+    },
+    {
+      "row": 9,
+      "col": 7,
+      "letter": "Z",
+      "isBlank": false
+    },
+    {
+      "row": 9,
+      "col": 8,
+      "letter": "A",
+      "isBlank": false
+    },
+    {
+      "row": 10,
+      "col": 8,
+      "letter": "V",
+      "isBlank": false
+    },
+    {
+      "row": 10,
+      "col": 9,
+      "letter": "A",
+      "isBlank": false
+    },
+    {
+      "row": 10,
+      "col": 10,
+      "letter": "C",
+      "isBlank": false
+    },
+    {
+      "row": 10,
+      "col": 11,
+      "letter": "S",
+      "isBlank": false
+    },
+    {
+      "row": 11,
+      "col": 8,
+      "letter": "A",
+      "isBlank": false
+    },
+    {
+      "row": 12,
+      "col": 4,
+      "letter": "N",
+      "isBlank": false
+    },
+    {
+      "row": 12,
+      "col": 5,
+      "letter": "O",
+      "isBlank": false
+    },
+    {
+      "row": 12,
+      "col": 6,
+      "letter": "T",
+      "isBlank": false
+    },
+    {
+      "row": 12,
+      "col": 7,
+      "letter": "E",
+      "isBlank": false
+    },
+    {
+      "row": 12,
+      "col": 8,
+      "letter": "S",
+      "isBlank": false
+    },
+    {
+      "row": 13,
+      "col": 4,
+      "letter": "E",
+      "isBlank": true
+    },
+    {
+      "row": 14,
+      "col": 4,
+      "letter": "R",
+      "isBlank": false
+    },
+    {
+      "row": 15,
+      "col": 1,
+      "letter": "G",
+      "isBlank": false
+    },
+    {
+      "row": 15,
+      "col": 2,
+      "letter": "O",
+      "isBlank": false
+    },
+    {
+      "row": 15,
+      "col": 3,
+      "letter": "L",
+      "isBlank": false
+    },
+    {
+      "row": 15,
+      "col": 4,
+      "letter": "D",
+      "isBlank": false
+    }
+  ],
+  "rack": [
+    {
+      "slot": 0,
+      "letter": "H",
+      "isBlank": false
+    },
+    {
+      "slot": 1,
+      "letter": "O",
+      "isBlank": false
+    },
+    {
+      "slot": 2,
+      "letter": "Y",
+      "isBlank": false
+    },
+    {
+      "slot": 3,
+      "letter": "N",
+      "isBlank": false
+    },
+    {
+      "slot": 4,
+      "letter": "V",
+      "isBlank": false
+    },
+    {
+      "slot": 5,
+      "letter": "O",
+      "isBlank": false
+    },
+    {
+      "slot": 6,
+      "letter": "O",
+      "isBlank": false
+    }
+  ],
+  "playerScore": 93,
+  "opponentScore": 69,
+  "note": "Committed position; board coordinates are 1-based."
+}

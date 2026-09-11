@@ -1,0 +1,1 @@
+# One A-Z word per line. Removals take precedence over additions.

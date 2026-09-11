@@ -1,0 +1,12 @@
+node_modules/
+.next/
+.env*
+!.env.example
+*.tsbuildinfo
+coverage/
+artifacts/
+dev-dontcommit/
+tests/fixtures/screenshots/*.png
+tests/fixtures/screenshots/*.jpeg
+tests/fixtures/screenshots/*.jpg
+out/
