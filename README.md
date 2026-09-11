@@ -49,8 +49,10 @@ Recognition uses fixed game geometry rather than generic OCR:
 - repeated board colors and spacing locate and normalize the grid at arbitrary phone resolutions;
 - color segmentation detects blue board and rack tiles;
 - the central glyph is isolated from its small point value;
-- compact templates classify A–Z, while point-glyph recognition retains blanks at zero value;
-- every result includes confidence, and ambiguous cells remain editable;
+- templates built from original and controlled low-quality variants classify A–Z;
+- point values resolve only close letter ambiguities and separately identify physical blanks;
+- evidence scores combine shape quality, the gap to the next candidate, and reliable point-value agreement;
+- ambiguous cells remain editable and block automatic solving until reviewed;
 - later imports report conflicts instead of overwriting prior or manual state.
 
 The development-only recognition debugger shows the normalized board, grid overlay, glyph crops, timings, predictions, and confidence. Corrected crops can be retained locally and exported as labeled training data. Nothing retrains or uploads automatically.

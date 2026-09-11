@@ -10,21 +10,32 @@ await mkdir('public/recognition',{recursive:true});await mkdir('artifacts/crops'
 // Use only IMG_2839 + IMG_2849 for exemplars; IMG_2842/2850 remain holdout screenshots.
 for(const name of ['IMG_2839','IMG_2849']) {
   const expected=JSON.parse(await readFile(`tests/fixtures/screenshots/${name}.expected.json`,'utf8'));
-  const {data,info}=await sharp(`tests/fixtures/screenshots/${expected.source}`).ensureAlpha().raw().toBuffer({resolveWithObject:true});
-  const image:PixelImage={width:info.width,height:info.height,data};
-  const board=detectBoard(image),rack=detectRack(image,board);console.log(name,{board,rack});
-  for(const tile of expected.board) {
-    const bounds={x:board.x+(tile.col-1)*board.width/15,y:board.y+(tile.row-1)*board.height/15,width:board.width/15,height:board.height/15};
-    const pixels=extractGlyph(image,bounds);
-    if(pixels.length)templates.letters.push({label:tile.letter,pixels,source:`${name}:r${tile.row}c${tile.col}`});
-    const points=extractGlyph(image,bounds,'point');
-    const value=tile.isBlank?0:CROSSPLAY_CONFIG.tileValues[tile.letter];
-    if(points.length)templates.digits.push({label:String(value),pixels:points,source:`${name}:r${tile.row}c${tile.col}`});
-  }
-  for(const tile of expected.rack) {
-    const rect=rack[tile.slot];if(!rect)continue;
-    const pixels=extractGlyph(image,rect);
-    if(pixels.length)templates.letters.push({label:tile.letter,pixels,source:`${name}:rack${tile.slot}`});
+  const original=await readFile(`tests/fixtures/screenshots/${expected.source}`);
+  const variants=[
+    {name:'original',buffer:original},
+    {name:'medium-jpeg',buffer:await sharp(original).resize({width:700}).jpeg({quality:60}).toBuffer()},
+    {name:'compact-jpeg',buffer:await sharp(original).resize({width:520}).jpeg({quality:40}).toBuffer()},
+  ];
+  for(const variant of variants) {
+    const {data,info}=await sharp(variant.buffer).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+    const image:PixelImage={width:info.width,height:info.height,data};
+    const board=detectBoard(image),rack=detectRack(image,board);console.log(name,variant.name,{board,rack});
+    for(const tile of expected.board) {
+      const bounds={x:board.x+(tile.col-1)*board.width/15,y:board.y+(tile.row-1)*board.height/15,width:board.width/15,height:board.height/15};
+      const pixels=extractGlyph(image,bounds);
+      if(pixels.length)templates.letters.push({label:tile.letter,pixels,source:`${name}:${variant.name}:r${tile.row}c${tile.col}`});
+      const points=extractGlyph(image,bounds,'point');
+      const value=tile.isBlank?0:CROSSPLAY_CONFIG.tileValues[tile.letter];
+      // Point crops are tiny and compression can merge the digit with its tile edge.
+      // Keep only original-resolution point exemplars; letter crops benefit from
+      // scaled variants because their components remain structurally intact.
+      if(points.length&&variant.name==='original')templates.digits.push({label:String(value),pixels:points,source:`${name}:r${tile.row}c${tile.col}`});
+    }
+    for(const tile of expected.rack) {
+      const rect=rack[tile.slot];if(!rect)continue;
+      const pixels=extractGlyph(image,rect);
+      if(pixels.length)templates.letters.push({label:tile.letter,pixels,source:`${name}:${variant.name}:rack${tile.slot}`});
+    }
   }
 }
 // Local system-font exemplars cover letters absent from supplied game screenshots.

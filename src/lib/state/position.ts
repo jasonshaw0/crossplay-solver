@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { emptyBoard } from '../crossplay/board';
 import type { Board, Cell } from '../crossplay/types';
-import type { RecognitionResult } from '../vision/types';
+import { RECOGNITION_REVIEW_THRESHOLD,type RecognitionResult } from '../vision/types';
 
 const tileSchema=z.object({letter:z.string().regex(/^[A-Z]$/),isBlank:z.boolean()});
 export const positionSchema=z.object({
@@ -23,9 +23,9 @@ export function reconcileRecognition(previous:Position,result:RecognitionResult)
   for(const tile of result.board.tiles) {
     const row=tile.row-1,col=tile.col-1;
     board[row][col]={letter:tile.letter,isBlank:tile.isBlank};
-    if(tile.confidence<.85)uncertain[`${row},${col}`]=true;
+    if(tile.confidence<RECOGNITION_REVIEW_THRESHOLD)uncertain[`${row},${col}`]=true;
   }
-  for(const tile of result.rack) {rack[tile.slot]=tile.isBlank?'?':tile.letter;if(tile.confidence<.85)uncertain[`rack:${tile.slot}`]=true;}
+  for(const tile of result.rack) {rack[tile.slot]=tile.isBlank?'?':tile.letter;if(tile.confidence<RECOGNITION_REVIEW_THRESHOLD)uncertain[`rack:${tile.slot}`]=true;}
   previous.board.forEach((line,row)=>line.forEach((old,col)=>{
     const candidate=board[row][col],key=`${row},${col}`;
     if((old||previous.manualCells?.[key])&&(old?.letter!==candidate?.letter||old?.isBlank!==candidate?.isBlank)) {

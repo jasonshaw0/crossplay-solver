@@ -13,3 +13,8 @@ it('rejects corrupt JSON before replacing editor state',()=>{
   expect(()=>parsePosition({version:1,board:[],rack:['A']})).toThrow('Invalid position');
   expect(parsePosition(initialPosition())).toEqual(initialPosition());
 });
+it('marks only readings below the shared review threshold',()=>{
+  const low={...candidate,board:{...candidate.board,tiles:[{...candidate.board.tiles[0],confidence:.849}]}};
+  expect(reconcileRecognition(initialPosition(),low).uncertain['7,7']).toBe(true);
+  expect(reconcileRecognition(initialPosition(),candidate).uncertain['7,7']).toBeUndefined();
+});

@@ -1,5 +1,6 @@
 export interface PixelImage { width:number; height:number; data:Uint8Array|Uint8ClampedArray }
 export interface Rect { x:number; y:number; width:number; height:number }
+export const RECOGNITION_REVIEW_THRESHOLD=.85;
 export interface RecognizedTile {
   row:number; col:number; letter:string; isBlank:boolean; confidence:number;
   blankConfidence:number; glyph:number[]; pointGlyph:number[]; bounds:Rect;

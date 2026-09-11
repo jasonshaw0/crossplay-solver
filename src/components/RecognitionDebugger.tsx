@@ -1,6 +1,6 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
-import type {RecognitionResult,RecognizedTile} from '../lib/vision/types';
+import {RECOGNITION_REVIEW_THRESHOLD,type RecognitionResult,type RecognizedTile} from '../lib/vision/types';
 export interface CorrectionSample {label:string;pixels:number[];source:string;predicted:string;confidence:number;createdAt:string}
 export function RecognitionDebugger({result,imageUrl,onLabel}:{result:RecognitionResult;imageUrl:string;onLabel:(tile:RecognizedTile,label:string)=>void}) {
   const canvasRef=useRef<HTMLCanvasElement>(null),[label,setLabel]=useState('A'),[selected,setSelected]=useState<RecognizedTile|null>(null);
@@ -13,7 +13,7 @@ export function RecognitionDebugger({result,imageUrl,onLabel}:{result:Recognitio
       context.drawImage(image,b.x*scale,b.y*scale,b.width*scale,b.height*scale,0,0,750,750);
       context.strokeStyle='#ca4930';context.lineWidth=1;
       for(let i=0;i<=15;i++){context.beginPath();context.moveTo(i*50,0);context.lineTo(i*50,750);context.stroke();context.beginPath();context.moveTo(0,i*50);context.lineTo(750,i*50);context.stroke();}
-      for(const tile of result.board.tiles){context.strokeStyle=tile.confidence<.85?'#f5bc36':'#52edc4';context.lineWidth=3;context.strokeRect((tile.col-1)*50+3,(tile.row-1)*50+3,44,44);}
+      for(const tile of result.board.tiles){context.strokeStyle=tile.confidence<RECOGNITION_REVIEW_THRESHOLD?'#f5bc36':'#52edc4';context.lineWidth=3;context.strokeRect((tile.col-1)*50+3,(tile.row-1)*50+3,44,44);}
     };image.src=imageUrl;
   },[result,imageUrl]);
   return <details className="debug-panel"><summary>Local recognition debugger</summary><p>Board bounds: {Object.entries(result.board.bounds).map(([k,v])=>`${k} ${Math.round(v)}`).join(' · ')}</p><p>Geometry {result.timings.geometryMs.toFixed(1)} ms · extraction {result.timings.extractionMs.toFixed(1)} ms · classification {result.timings.classificationMs.toFixed(1)} ms</p>
