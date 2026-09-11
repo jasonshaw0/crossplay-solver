@@ -7,11 +7,12 @@ interface Props {
   labelledBy:string;
   children:ReactNode;
   panelClassName?:string;
+  backdropClassName?:string;
 }
 
 const focusable='button:not([disabled]),a[href],input:not([disabled]),textarea:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
-export function Modal({open,onClose,labelledBy,children,panelClassName=''}:Props) {
+export function Modal({open,onClose,labelledBy,children,panelClassName='',backdropClassName=''}:Props) {
   const panel=useRef<HTMLElement>(null),lastFocused=useRef<HTMLElement|null>(null),closeRef=useRef(onClose);
   useEffect(()=>{closeRef.current=onClose;},[onClose]);
   useEffect(()=>{
@@ -33,5 +34,5 @@ export function Modal({open,onClose,labelledBy,children,panelClassName=''}:Props
     return()=>{cancelAnimationFrame(frame);document.removeEventListener('keydown',keydown);document.body.style.overflow=previousOverflow;lastFocused.current?.focus({preventScroll:true});};
   },[open]);
   if(!open)return null;
-  return <div className="modal-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget)onClose();}}><section ref={panel} className={`modal-panel ${panelClassName}`} role="dialog" aria-modal="true" aria-labelledby={labelledBy} tabIndex={-1}>{children}</section></div>;
+  return <div className={`modal-backdrop ${backdropClassName}`} onMouseDown={event=>{if(event.target===event.currentTarget)onClose();}}><section ref={panel} className={`modal-panel ${panelClassName}`} role="dialog" aria-modal="true" aria-labelledby={labelledBy} tabIndex={-1}>{children}</section></div>;
 }

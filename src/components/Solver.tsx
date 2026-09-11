@@ -32,8 +32,8 @@ export default function Solver() {
   const [info,setInfo]=useState<DictionaryInfo|null>(null),[nodes,setNodes]=useState(0),[solving,setSolving]=useState(false),[importing,setImporting]=useState(false);
   const [status,setStatus]=useState(''),[error,setError]=useState(''),[issues,setIssues]=useState<BoardIssue[]>([]);
   const [uncertain,setUncertain]=useState<Record<string,boolean>>({}),[conflicts,setConflicts]=useState<Conflict[]>([]),[recognition,setRecognition]=useState<RecognitionResult|null>(null),[imageUrl,setImageUrl]=useState('');
-  const [showSettings,setShowSettings]=useState(false),[draft,setDraft]=useState(defaultSettings),[corrections,setCorrections]=useState<CorrectionSample[]>([]);
-  const worker=useRef<Worker|null>(null),revision=useRef(0),latestPosition=useRef(position),screenshotInput=useRef<HTMLInputElement>(null),jsonInput=useRef<HTMLInputElement>(null),dictInput=useRef<HTMLInputElement>(null);
+  const [showSettings,setShowSettings]=useState(false),[showMobileResults,setShowMobileResults]=useState(false),[draft,setDraft]=useState(defaultSettings),[corrections,setCorrections]=useState<CorrectionSample[]>([]);
+  const worker=useRef<Worker|null>(null),revision=useRef(0),latestPosition=useRef(position),pendingAutoSolve=useRef<Position|null>(null),screenshotInput=useRef<HTMLInputElement>(null),jsonInput=useRef<HTMLInputElement>(null),dictInput=useRef<HTMLInputElement>(null);
   const recognizer=useRef<LocalCrossplayRecognizer|null>(null);
   useEffect(()=>{latestPosition.current=position;},[position]);
 
@@ -60,15 +60,20 @@ export default function Solver() {
     const current=new Worker(new URL('../workers/solver.worker.ts',import.meta.url));worker.current=current;
     current.onmessage=event=>{
       const message=event.data;
-      if(message.type==='ready'){setInfo(message.info);setNodes(message.nodes);return;}
+      if(message.type==='ready'){
+        setInfo(message.info);setNodes(message.nodes);
+        const pending=pendingAutoSolve.current;
+        if(pending){pendingAutoSolve.current=null;setSolving(true);setError('');setStatus('Screenshot imported. Finding legal moves…');setMoves(null);setPreview(null);setStats(null);if(window.matchMedia('(max-width:740px)').matches)setShowMobileResults(true);current.postMessage({type:'solve',id:++revision.current,board:pending.board,rack:pending.rack} satisfies SolverRequest);}
+        return;
+      }
       if(message.id!==undefined&&message.id!==revision.current)return;
       setSolving(false);
-      if(message.type==='error'){setError(message.error);return;}
+      if(message.type==='error'){setShowMobileResults(false);setError(message.error);return;}
       setIssues(message.issues??[]);
-      if(message.type==='invalid'){setError('Check the highlighted board cells before solving.');return;}
-      if(message.type==='solved'){setMoves(message.moves);setStats(message.stats);setStatus(`${message.moves.length.toLocaleString()} legal plays found.`);}
+      if(message.type==='invalid'){setShowMobileResults(false);setError('Check the highlighted board cells before solving.');return;}
+      if(message.type==='solved'){setMoves(message.moves);setStats(message.stats);setStatus(`${message.moves.length.toLocaleString()} legal plays found.`);if(window.matchMedia('(max-width:740px)').matches)setShowMobileResults(true);}
     };
-    current.onerror=()=>{setSolving(false);setError('The solver worker could not start. Reload to try again.');};
+    current.onerror=()=>{setSolving(false);setShowMobileResults(false);setError('The solver worker could not start. Reload to try again.');};
     const request:SolverRequest={type:'init',...settings};current.postMessage(request);
     return()=>{current.terminate();worker.current=null;};
   },[hydrated,settings]);
@@ -83,7 +88,7 @@ export default function Solver() {
   function commit(next:Position,message='') {
     const previous=latestPosition.current;
     setHistory(past=>[...past.slice(-79),previous]);latestPosition.current=next;setPosition(next);
-    revision.current++;setMoves(null);setPreview(null);setStats(null);setIssues([]);setError('');setStatus(message);setSolving(false);
+    revision.current++;setMoves(null);setPreview(null);setStats(null);setIssues([]);setError('');setStatus(message);setSolving(false);setShowMobileResults(false);pendingAutoSolve.current=null;
   }
   function saveSample(tile:RecognizedTile,label:string) {
     const sample:CorrectionSample={label,pixels:tile.glyph,source:`local:r${tile.row}c${tile.col}`,predicted:tile.letter,confidence:tile.confidence,createdAt:new Date().toISOString()};
@@ -105,11 +110,13 @@ export default function Solver() {
     const previous=history.at(-1);if(!previous)return;
     setPosition(previous);latestPosition.current=previous;setHistory(history.slice(0,-1));revision.current++;setPreview(null);setMoves(null);setStats(null);setSolving(false);setError('');setIssues([]);setStatus('Last change undone.');
   }
-  function solve() {
+  function solve(target=latestPosition.current,progress='') {
     if(!info||!worker.current)return;
-    if(!position.rack.some(Boolean)){setError('Enter at least one rack tile to solve.');return;}
+    if(!target.rack.some(Boolean)){setError('Enter at least one rack tile to solve.');return;}
     setSolving(true);setError('');setStatus('');setMoves(null);setPreview(null);setStats(null);
-    const request:SolverRequest={type:'solve',id:++revision.current,board:position.board,rack:position.rack};worker.current.postMessage(request);
+    if(progress)setStatus(progress);
+    if(window.matchMedia('(max-width:740px)').matches)setShowMobileResults(true);
+    const request:SolverRequest={type:'solve',id:++revision.current,board:target.board,rack:target.rack};worker.current.postMessage(request);
   }
   async function importScreenshot(file:File) {
     setImporting(true);setError('');setStatus('Reading board and rack on this device…');
@@ -119,6 +126,8 @@ export default function Solver() {
       const reconciled=reconcileRecognition(latestPosition.current,result);
       commit(reconciled.position,`Screenshot imported · ${result.board.tiles.length} board tiles · ${result.rack.length} rack tiles · ${Math.round(result.timings.totalMs)} ms`);
       setUncertain(reconciled.uncertain);setConflicts(reconciled.conflicts);setRecognition(result);setImageUrl(URL.createObjectURL(file));
+      const canAutoSolve=result.board.detected&&result.board.complete&&result.board.tiles.length>0&&result.rack.length===7&&reconciled.position.rack.every(Boolean)&&reconciled.conflicts.length===0;
+      if(canAutoSolve){if(info&&worker.current)solve(reconciled.position,'Screenshot imported. Finding legal moves…');else pendingAutoSolve.current=reconciled.position;}
     }catch(error){setError(`${error instanceof Error?error.message:'Screenshot recognition failed.'} Manual entry is always available.`);setStatus('');}
     finally{setImporting(false);}
   }
@@ -134,8 +143,12 @@ export default function Solver() {
     if(conflict.row<0)editRack(conflict.col,conflict.candidate);
     else editCell(conflict,conflict.candidate?{letter:conflict.candidate,isBlank:conflict.candidateBlank}:null);
   }
+  function applyMove(move:Move) {
+    const board=applyPlacements(position.board,move.placements),rack=consumeRack(position.rack,move.placements);
+    setShowMobileResults(false);commit({...position,board,rack,manualCells:{}},`${move.mainWord} applied. Refill your rack for the next solve.`);
+  }
   function screenshotCard(className:string) {
-    return <section className={`import-card ${className} ${importing?'busy':''}`} onDragOver={event=>event.preventDefault()} onDrop={event=>{event.preventDefault();const file=event.dataTransfer.files[0];if(file&&!importing)void importScreenshot(file);}}><span className="import-icon"><Icon name="image" size={25}/></span><h3>Start with a screenshot</h3><p>Bring your board and rack straight<br/> from the game.</p><button className="button" disabled={importing} onClick={()=>screenshotInput.current?.click()}><Icon name="upload" size={16}/>{importing?'Reading screenshot…':'Import screenshot'}</button><span className="privacy-note">Local recognition. Your image stays here.</span></section>;
+    return <section className={`import-card ${className} ${importing?'busy':''}`} onDragOver={event=>event.preventDefault()} onDrop={event=>{event.preventDefault();const file=event.dataTransfer.files[0];if(file&&!importing)void importScreenshot(file);}}><span className="import-icon"><Icon name="image" size={25}/></span><h3>Start with a screenshot</h3><p>Use the full, uncropped game screenshot with the board and all seven rack tiles visible.</p><button className="button" disabled={importing} onClick={()=>screenshotInput.current?.click()}><Icon name="upload" size={16}/>{importing?'Reading screenshot…':'Import screenshot'}</button><span className="privacy-note">Local recognition. Your image stays here.</span></section>;
   }
   const tile=position.board[selected.row][selected.col],occupied=occupiedCount(position.board);
   const problemCells=useMemo(()=>new Set(issues.flatMap(issue=>issue.cells.map(p=>`${p.row},${p.col}`))),[issues]);
@@ -153,18 +166,20 @@ export default function Solver() {
           <details className="keyboard-help"><summary>Keyboard shortcuts</summary><p>Letters advance in the selected direction. Arrow keys move between cells. Enter switches direction. Delete clears a cell; Backspace on an empty cell clears the previous tile. Shift + letter places a blank; ? or right-click toggles an existing blank. A 0 point marker identifies a blank.</p></details>
         </section>
         <aside className="controls">
-          <section className="rack-card"><div className="section-heading"><h2>Your rack</h2><span className="small-count">{position.rack.filter(Boolean).length} / 7</span></div><Rack rack={position.rack} onChange={editRack} uncertain={uncertain}/><p className="helper">Type your letters. Use <kbd>?</kbd> for a blank.</p><button className="button primary solve-button" data-testid="solve" onClick={solve} disabled={!info||solving||!position.rack.some(Boolean)}>{solving?<span className="spinner"/>:<Icon name="spark"/>}{solving?'Finding moves…':'Solve position'}<Icon name="arrow"/></button>
+          <section className="rack-card"><div className="section-heading"><h2>Your rack</h2><span className="small-count">{position.rack.filter(Boolean).length} / 7</span></div><Rack rack={position.rack} onChange={editRack} uncertain={uncertain}/><p className="helper">Type your letters. Use <kbd>?</kbd> for a blank.</p><button className="button primary solve-button" data-testid="solve" onClick={()=>solve()} disabled={!info||solving||!position.rack.some(Boolean)}>{solving?<span className="spinner"/>:<Icon name="spark"/>}{solving?'Finding moves…':'Solve position'}<Icon name="arrow"/></button>
             <div className="secondary-actions"><button className="button" onClick={undo} disabled={!history.length}><Icon name="undo" size={15}/>Undo</button><button className="button" onClick={()=>{commit(initialPosition(),'Position cleared. Undo restores it.');setUncertain({});setConflicts([]);setRecognition(null);}}><Icon name="clear" size={15}/>Clear</button></div>
           </section>
           {screenshotCard('standard-import-card')}
-          {preview?<ScoreBreakdown move={preview} onClose={()=>setPreview(null)} onApply={()=>{const board=applyPlacements(position.board,preview.placements),rack=consumeRack(position.rack,preview.placements);commit({...position,board,rack,manualCells:{}},`${preview.mainWord} applied. Refill your rack for the next solve.`);}}/>:<div className="quick-tip"><span>NEW TO THE BOARD?</span><p>Try a real game position, then select a move to see exactly where it goes.</p><button className="text-button" onClick={loadExample}>Load example position <Icon name="arrow" size={14}/></button></div>}
+          {preview?<ScoreBreakdown move={preview} onClose={()=>setPreview(null)} onApply={()=>applyMove(preview)}/>:<div className="quick-tip"><span>NEW TO THE BOARD?</span><p>Try a real game position, then select a move to see exactly where it goes.</p><button className="text-button" onClick={loadExample}>Load example position <Icon name="arrow" size={14}/></button></div>}
           <div className="position-actions"><button onClick={()=>download('crossplay-position.json',position)}><Icon name="download" size={14}/>Export position</button><button onClick={()=>jsonInput.current?.click()}><Icon name="upload" size={14}/>Import JSON</button><input ref={jsonInput} data-testid="position-input" type="file" hidden accept="application/json,.json" onChange={e=>{const file=e.target.files?.[0];if(file)void importJSON(file);e.target.value='';}}/></div>
         </aside>
       </div>
       <input ref={screenshotInput} data-testid="screenshot-input" type="file" hidden accept="image/png,image/jpeg,image/webp" onChange={event=>{const file=event.target.files?.[0];if(file)void importScreenshot(file);event.target.value='';}}/>
       <div className="status-area" aria-live="polite">{error?<p className="error-message" role="alert">{error}</p>:status?<p className="success-message"><Icon name={importing?'image':'check'} size={16}/>{status}</p>:<p className="quiet-message"><span className={`status-dot ${info?'ready':''}`}/>{info?`${info.wordCount.toLocaleString()} words ready · ${info.name}`:'Loading dictionary…'}</p>}</div>
       {(recognition?.warnings.length||conflicts.length>0||issues.length>0)?<details className="review-panel" open={conflicts.length>0||issues.some(i=>i.severity==='error')}><summary>Review position · {conflicts.length} conflict{conflicts.length!==1?'s':''}{Object.values(uncertain).some(Boolean)?' · marked cells need a look':''}</summary>{recognition?.warnings.map((warning,i)=><p key={i}>{warning}</p>)}{issues.map((issue,i)=><p key={i}>{issue.message}</p>)}{conflicts.map((conflict,i)=><div key={i}><span>{conflict.message}</span><button onClick={()=>acceptConflict(conflict)}>Use screenshot reading</button></div>)}</details>:null}
-      <Results moves={moves} stats={stats} selected={preview} onSelect={setPreview} solving={solving}/>
+      <div className={showMobileResults?'inline-results results-hidden-mobile':'inline-results'}><Results moves={moves} stats={stats} selected={preview} onSelect={setPreview} solving={solving}/></div>
+      <Modal open={showMobileResults} onClose={()=>setShowMobileResults(false)} labelledBy="mobile-results-title" panelClassName="mobile-results-panel" backdropClassName="mobile-results-backdrop"><div className="mobile-results-heading"><div><span className="eyebrow">FIND YOUR NEXT PLAY</span><h2 id="mobile-results-title">{preview?'Move preview':'Best moves'} {moves&&<span className="count">{moves.length.toLocaleString()}</span>}</h2>{stats&&!preview&&<p>{Math.round(stats.durationMs)} ms · exact scores</p>}</div><button className="icon-button modal-close" data-modal-close aria-label="Close results" onClick={()=>setShowMobileResults(false)}><Icon name="close"/></button></div>{preview?<><button className="text-button mobile-results-back" onClick={()=>setPreview(null)}>← All moves</button><ScoreBreakdown move={preview} onClose={()=>setPreview(null)} onApply={()=>applyMove(preview)}/></>:<Results moves={moves} stats={stats} selected={preview} onSelect={setPreview} solving={solving} titleId="mobile-results-title" hideHeading/>}</Modal>
+      {moves&&!showMobileResults&&<button className="button primary mobile-results-reopen" onClick={()=>setShowMobileResults(true)}><Icon name="spark"/>View best moves <span>{moves.length.toLocaleString()}</span></button>}
       <Modal open={showSettings} onClose={()=>setShowSettings(false)} labelledBy="settings-title" panelClassName="settings-panel"><div className="section-heading"><div><span className="eyebrow">YOUR WORD LIST</span><h2 id="settings-title">Dictionary & preferences</h2></div><button className="icon-button modal-close" data-modal-close aria-label="Close settings" onClick={()=>setShowSettings(false)}><Icon name="close"/></button></div><p><b>{info?.name??'Loading'} · {info?.wordCount.toLocaleString()??'…'} words</b> · Overrides +{info?.additions??0} / −{info?.removals??0}</p><p>ENABLE is a full public-domain lexicon. NYT uses a curated NWL 2023 list, so accepted words can differ. Load your own word list or patch individual words below. Scores and legality are exact for the loaded dictionary.</p><div className="override-fields"><label>Add words <textarea aria-label="Dictionary additions" value={draft.additions} onChange={e=>setDraft({...draft,additions:e.target.value})} placeholder="One word per line"/></label><label>Remove words <textarea aria-label="Dictionary removals" value={draft.removals} onChange={e=>setDraft({...draft,removals:e.target.value})} placeholder="One word per line"/></label></div><div className="settings-buttons"><button className="button" onClick={()=>dictInput.current?.click()}>Load .txt dictionary</button>{draft.customText&&<button className="button" onClick={()=>setDraft({...draft,customText:undefined,customName:undefined})}>Use ENABLE</button>}<span>{draft.customName}</span><input ref={dictInput} type="file" hidden accept="text/plain,.txt" onChange={async e=>{const file=e.target.files?.[0];if(file){if(file.size>15_000_000){setError('Use a dictionary smaller than 15 MB.');return;}setDraft({...draft,customText:await file.text(),customName:file.name});}}}/></div><label className="checkbox-label"><input type="checkbox" checked={draft.saveCorrections} onChange={e=>setDraft({...draft,saveCorrections:e.target.checked})}/>Save corrected tile crops locally for training exports</label><div className="settings-buttons"><button className="button primary" onClick={()=>{setSettings(draft);setInfo(null);setMoves(null);setPreview(null);revision.current++;setError('');setShowSettings(false);}}>Save settings</button><button className="button" disabled={!corrections.length} onClick={()=>download('crossplay-training-samples.json',corrections)}>Export {corrections.length} labeled crops</button></div><p className="fine-print">No automatic retraining or cloud uploads. Tile distribution warnings are provisional until a tile-bag screenshot is verified.</p>{info&&<p className="fingerprint">Dictionary SHA-256: {info.fingerprint}</p>}</Modal>
       {process.env.NODE_ENV==='development'&&<><details className="debug-panel"><summary>Solver debug</summary><p>Dictionary: {info?.wordCount??0} words · trie: {nodes.toLocaleString()} nodes · anchors: {stats?.anchors??0} · candidates: {stats?.candidates??0} · legal moves: {stats?.legalMoves??0}</p>{stats&&<><p>Selected cell cross-check masks: across {stats.crossChecks.across[selected.row][selected.col].toString(2)}, down {stats.crossChecks.down[selected.row][selected.col].toString(2)}</p><pre>{JSON.stringify({...stats,crossChecks:undefined},null,2)}</pre></>}</details>{recognition&&imageUrl&&<RecognitionDebugger result={recognition} imageUrl={imageUrl} onLabel={saveSample}/>}</>}
     </main><footer className="app-footer"><span>Built for the love of a good word by <a href="https://github.com/jasonshaw0" target="_blank" rel="noreferrer">Jason Shaw</a>.</span><span>Independent tool · Not affiliated with The New York Times · <a href="https://github.com/jasonshaw0/crossplay-solver" target="_blank" rel="noreferrer">View source</a></span></footer>

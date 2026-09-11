@@ -2,12 +2,12 @@
 import {useMemo,useState} from 'react';
 import type {Move,SolveStats} from '../lib/crossplay/types';
 import {Icon} from './Icons';
-export function Results({moves,stats,selected,onSelect,solving}:{moves:Move[]|null;stats:SolveStats|null;selected:Move|null;onSelect:(move:Move)=>void;solving:boolean}) {
+export function Results({moves,stats,selected,onSelect,solving,titleId='results-title',hideHeading=false}:{moves:Move[]|null;stats:SolveStats|null;selected:Move|null;onSelect:(move:Move)=>void;solving:boolean;titleId?:string;hideHeading?:boolean}) {
   const [query,setQuery]=useState(''),[scroll,setScroll]=useState(0);
   const filtered=useMemo(()=>moves?.filter(m=>m.mainWord.includes(query.toUpperCase()))??[],[moves,query]);
   const start=Math.max(0,Math.floor(scroll/58)-4),visible=filtered.slice(start,start+18);
-  return <section className="results-section" aria-labelledby="results-title">
-    <div className="section-heading"><div><span className="eyebrow">FIND YOUR NEXT PLAY</span><h2 id="results-title">Legal moves {moves&&<span className="count">{moves.length.toLocaleString()}</span>}</h2></div><div className="results-meta">{stats&&<span>{Math.round(stats.durationMs)} ms · exact scores</span>}{moves&&moves.length>0&&<input aria-label="Filter results by word" placeholder="Find a word…" value={query} onChange={e=>{setQuery(e.target.value);setScroll(0);}}/>}</div></div>
+  return <section className="results-section" aria-labelledby={titleId}>
+    {!hideHeading&&<div className="section-heading"><div><span className="eyebrow">FIND YOUR NEXT PLAY</span><h2 id={titleId}>Legal moves {moves&&<span className="count">{moves.length.toLocaleString()}</span>}</h2></div><div className="results-meta">{stats&&<span>{Math.round(stats.durationMs)} ms · exact scores</span>}{moves&&moves.length>0&&<input aria-label="Filter results by word" placeholder="Find a word…" value={query} onChange={e=>{setQuery(e.target.value);setScroll(0);}}/>}</div></div>}
     {!moves?<div className="results-empty"><span className="empty-icon"><Icon name="spark" size={26}/></span><div><h3>{solving?'Finding every legal play…':'A good move starts here.'}</h3><p>{solving?'Checking words, crossings, and scores.':'Enter your board and rack, or import a screenshot. Then hit Solve.'}</p></div></div>:filtered.length===0?<div className="results-empty"><h3>{query?'No matching words.':'No legal plays found.'}</h3></div>:<>
       <div className="result-columns" aria-hidden="true"><span>#</span><span>WORD</span><span>POSITION</span><span>NEW TILES</span><span>POINTS</span><span/></div>
       <div className="results-scroll" onScroll={e=>setScroll(e.currentTarget.scrollTop)} role="group" aria-label="Moves ranked by exact score" data-testid="results-list">
