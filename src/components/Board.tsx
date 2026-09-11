@@ -16,6 +16,7 @@ export function Board({board,selected,direction,preview,uncertain,problemCells,o
     onSelect(next,false);refs.current[next.row*15+next.col]?.focus({preventScroll:true});
   }
   const previewTiles=new Map(preview?.placements.map(p=>[cellKey(p),p]));
+  const previewWordCells=new Set(preview?.formedWords.flatMap(word=>word.coordinates.map(cellKey)));
   return <div className="board-shell" data-testid="board">
     <div className="board-columns" aria-hidden="true">{Array.from({length:15},(_,i)=><span key={i}>{String.fromCharCode(65+i)}</span>)}</div>
     <div className="board-rows" aria-hidden="true">{Array.from({length:15},(_,i)=><span key={i}>{i+1}</span>)}</div>
@@ -23,9 +24,9 @@ export function Board({board,selected,direction,preview,uncertain,problemCells,o
       {board.flatMap((line,row)=>line.map((tile,col)=>{
         const cell={row,col},key=cellKey(cell),premium=config.premiums[row][col],proposed=previewTiles.get(key),shown=proposed??tile;
         const active=selected.row===row&&selected.col===col;
-        return <div key={key} className={['square',premium??'',shown?'occupied':'',shown?.isBlank?'blank-tile':'',proposed?'preview-tile':'',active?'selected':'',uncertain[key]?'uncertain':'',problemCells.has(key)?'problem':''].filter(Boolean).join(' ')} data-testid={`cell-${row+1}-${col+1}`} data-letter={tile?.letter??''} data-blank={tile?.isBlank??false} data-preview={proposed?.letter??''}>
+        return <div key={key} className={['square',premium??'',shown?'occupied':'',shown?.isBlank?'blank-tile':'',previewWordCells.has(key)?'preview-word':'',proposed?'preview-tile':previewWordCells.has(key)&&tile?'preview-existing-tile':'',active?'selected':'',uncertain[key]?'uncertain':'',problemCells.has(key)?'problem':''].filter(Boolean).join(' ')} data-testid={`cell-${row+1}-${col+1}`} data-letter={tile?.letter??''} data-blank={tile?.isBlank??false} data-preview={proposed?.letter??''}>
           <span className="tile-face" aria-hidden="true">{shown?<><b>{shown.letter}</b><small>{shown.isBlank?'0':config.tileValues[shown.letter]}</small>{proposed&&<em>+</em>}</>:<span className="premium-label">{premium?.replace('D','2').replace('T','3')??(row===7&&col===7?'✦':'')}</span>}</span>
-          {uncertain[key]&&<span className="uncertainty-mark" aria-hidden="true">!</span>}
+          {uncertain[key]&&<span className="uncertainty-mark" title="Review screenshot reading" aria-hidden="true">?</span>}
           <input ref={node=>{refs.current[row*15+col]=node;}} aria-label={`Row ${row+1}, column ${col+1}${tile?`, ${tile.letter}${tile.isBlank?', blank':''}`:', empty'}${uncertain[key]?', review reading':''}`} autoComplete="off" autoCapitalize="characters" spellCheck={false} value={tile?.letter??''} maxLength={1} tabIndex={active?0:-1}
             onPointerDown={()=>{repeatedClick.current=active;}} onClick={()=>onSelect(cell,repeatedClick.current)} onFocus={()=>onSelect(cell,false)}
             onChange={event=>{const letter=event.target.value.replace(/[^a-z]/gi,'').slice(-1).toUpperCase();onChange(cell,letter?{letter,isBlank:false}:null);if(letter)move(cell,direction==='down'?1:0,direction==='across'?1:0);}}
